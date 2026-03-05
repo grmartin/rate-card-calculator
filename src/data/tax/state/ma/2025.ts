@@ -1,4 +1,4 @@
-import type { MassYearData } from '../../../types/tax'
+import type { MassYearData } from '../../../../types/tax'
 
 const ma2025: MassYearData = {
   year: 2025,

@@ -1,4 +1,4 @@
-import type { FederalYearData } from '../../../types/tax'
+import type { FederalYearData } from '../../../../types/tax'
 
 const federal2025: FederalYearData = {
   year: 2025,

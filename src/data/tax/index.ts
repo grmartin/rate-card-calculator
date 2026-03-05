@@ -1,7 +1,7 @@
 import type { TaxDataset } from '../../types/tax'
 import federal2025 from './federal/2025'
-import ma2025 from './ma/2025'
-import fica2025 from './fica/2025'
+import ma2025 from './state/ma/2025'
+import fica2025 from './federal/2025/fica'
 
 const datasets: Record<number, TaxDataset> = {
   2025: {

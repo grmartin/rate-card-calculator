@@ -1,4 +1,4 @@
-import type { FicaYearData } from '../../../types/tax'
+import type { FicaYearData } from '../../../../types/tax'
 
 const fica2025: FicaYearData = {
   year: 2025,
