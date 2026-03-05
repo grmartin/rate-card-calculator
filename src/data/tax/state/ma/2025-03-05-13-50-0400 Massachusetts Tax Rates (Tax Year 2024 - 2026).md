@@ -1,9 +1,11 @@
 ---
-title: Massachusetts Tax Rates (Tax Year 2024 + 2025)
+title: Massachusetts Tax Rates (Tax Year 2024 to 2026)
 state: MA
 url: https://www.mass.gov/info-details/massachusetts-tax-rates
-date: 2025-03-05T17:10:12Z
+date: 2025-03-05T18:49:51Z
 ---
+
+> ***Note:*** No changes to personal income tax rate or standard deductions between TY 2025 and TY 2026
 
 # Massachusetts Tax Rates
 

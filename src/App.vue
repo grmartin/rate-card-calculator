@@ -140,6 +140,9 @@ function fmtPct(n: number): string {
             <h2>Monthly Expenses</h2>
             <button class="btn-add" @click="addExpense()">+ Add</button>
           </div>
+          <div>
+            <p class="description">Monthly expenses are added to your expected net income to permit itemization. This helps in understanding the true financial picture by accounting for recurring costs that can impact your budget and financial planning.</p>
+          </div>
           <div v-for="expense in input.expenses" :key="expense.id" class="expense-row">
             <input
               type="text"
@@ -532,11 +535,18 @@ function fmtPct(n: number): string {
   border-bottom: none;
 }
 
-.disclaimer {
+.disclaimer, .description {
   margin-top: 1.25rem;
   font-size: 0.75rem;
-  color: #aaa;
+}
+
+.disclaimer {
   text-align: center;
+  color: #aaa;
+}
+
+.description {
+  color: #333;
 }
 
 .header-top {
