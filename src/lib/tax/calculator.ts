@@ -5,6 +5,7 @@ import { computeMassIncomeTax } from './massTax'
 import { computeW2FicaTax } from './ficaTax'
 import { computeSelfEmploymentTax } from './selfEmploymentTax'
 import { solveGrossForTargetNet } from './grossUpSolver'
+import { addC, mulRate, roundCents } from '../currency'
 
 function computeTaxBreakdown(gross: number, input: CalculatorInput): TaxBreakdown {
   const ds = getTaxDataset(input.year)
@@ -13,20 +14,20 @@ function computeTaxBreakdown(gross: number, input: CalculatorInput): TaxBreakdow
     const federal = computeFederalIncomeTax({ grossIncome: gross, filingStatus: input.filingStatus, federal: ds.federal })
     const mass = computeMassIncomeTax({ grossIncome: gross, filingStatus: input.filingStatus, mass: ds.mass })
     const ficaTax = computeW2FicaTax({ grossIncome: gross, filingStatus: input.filingStatus, fica: ds.fica })
-    const totalTax = federal.tax + mass.tax + ficaTax
+    const totalTax = addC(federal.tax, mass.tax, ficaTax)
     return {
       federalIncomeTax: federal.tax,
       massIncomeTax: mass.tax,
       ficaTax,
       selfEmploymentTax: 0,
       totalTax,
-      effectiveTaxRate: gross > 0 ? totalTax / gross : 0,
+      effectiveTaxRate: gross > 0 ? roundCents(totalTax / gross) : 0,
     }
   } else {
     const { seTax, deductibleHalf } = computeSelfEmploymentTax({ netEarnings: gross, filingStatus: input.filingStatus, fica: ds.fica })
     const federal = computeFederalIncomeTax({ grossIncome: gross, filingStatus: input.filingStatus, federal: ds.federal, extraDeduction: deductibleHalf })
     const mass = computeMassIncomeTax({ grossIncome: gross, filingStatus: input.filingStatus, mass: ds.mass })
-    const totalTax = federal.tax + mass.tax + seTax
+    const totalTax = addC(federal.tax, mass.tax, seTax)
     return {
       federalIncomeTax: federal.tax,
       massIncomeTax: mass.tax,
@@ -39,13 +40,16 @@ function computeTaxBreakdown(gross: number, input: CalculatorInput): TaxBreakdow
 }
 
 export function calculateRateCard(input: CalculatorInput): CalculatorResult {
-  const annualExpenses = input.expenses.reduce((sum, e) => sum + e.monthlyAmount, 0) * 12
-  const targetNetAnnual = input.targetNetMonthly * 12
-  const totalRequiredNetAnnual = targetNetAnnual + annualExpenses
+  const annualExpenses = mulRate(
+    input.expenses.reduce((sum, e) => addC(sum, e.monthlyAmount), 0),
+    12,
+  )
+  const targetNetAnnual = mulRate(input.targetNetMonthly, 12)
+  const totalRequiredNetAnnual = addC(targetNetAnnual, annualExpenses)
 
   const computeNetFromGross = (gross: number): number => {
     const breakdown = computeTaxBreakdown(gross, input)
-    return gross - breakdown.totalTax
+    return addC(gross, -breakdown.totalTax)
   }
 
   const { gross: requiredGrossAnnual } = solveGrossForTargetNet({
@@ -58,9 +62,9 @@ export function calculateRateCard(input: CalculatorInput): CalculatorResult {
 
   return {
     requiredGrossAnnual,
-    requiredGrossMonthly: requiredGrossAnnual / 12,
-    hourlyRate: totalBillableHours > 0 ? requiredGrossAnnual / totalBillableHours : 0,
-    weeklyRate: input.weeksPerYear > 0 ? requiredGrossAnnual / input.weeksPerYear : 0,
+    requiredGrossMonthly: roundCents(requiredGrossAnnual / 12),
+    hourlyRate: totalBillableHours > 0 ? roundCents(requiredGrossAnnual / totalBillableHours) : 0,
+    weeklyRate: input.weeksPerYear > 0 ? roundCents(requiredGrossAnnual / input.weeksPerYear) : 0,
     taxBreakdown,
     annualExpenses,
     totalRequiredNetAnnual,

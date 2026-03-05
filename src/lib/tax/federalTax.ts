@@ -1,4 +1,5 @@
 import type { FederalYearData, FilingStatus } from '../../types/tax'
+import { addC, maxZero } from '../currency'
 import { computeProgressiveTax } from './progressiveTax'
 
 export function computeFederalIncomeTax(params: {
@@ -8,8 +9,8 @@ export function computeFederalIncomeTax(params: {
   extraDeduction?: number
 }): { taxableIncome: number; tax: number } {
   const { grossIncome, filingStatus, federal, extraDeduction = 0 } = params
-  const deduction = federal.standardDeduction[filingStatus] + extraDeduction
-  const taxableIncome = Math.max(0, grossIncome - deduction)
+  const deduction = addC(federal.standardDeduction[filingStatus], extraDeduction)
+  const taxableIncome = maxZero(grossIncome - deduction)
   const tax = computeProgressiveTax(taxableIncome, federal.brackets[filingStatus])
   return { taxableIncome, tax }
 }
